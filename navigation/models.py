@@ -38,3 +38,24 @@ class AreaObjectFaculty(models.Model):
     area_object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="faculty_associations")
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="area_object_associations")
     floor = models.IntegerField()
+
+class Institute(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    object = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="institute")
+
+class Entry(models.Model):
+    object_latitude = models.IntegerField()
+    object_longitude = models.IntegerField()
+    object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="entry")
+
+class ImportantPlace(models.Model):
+    id = models.AutoField(primary_key=True)
+    floor = models.IntegerField()
+    room = models.CharField(max_length=255)
+    object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="important_place")
+
+class User(models.Model):
+    id = models.AutoField(primary_key=True)
+    email = models.CharField(max_length=255)
+    password = models.CharField(max_length=128)
