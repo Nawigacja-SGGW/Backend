@@ -5,15 +5,22 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=6)
     city = models.CharField(max_length=255)
 
+class Guide(models.Model):
+    description = models.CharField(max_length=255)
+
 class Object(models.Model):
     latitude = models.CharField(max_length=255)
     longitude = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    image = models.CharField(max_length=255)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, related_name="objects")
+    guide = models.ForeignKey(Guide, on_delete=models.SET_NULL, null=True, related_name="objects")
 
 class PointObject(models.Model):
     id = models.AutoField(primary_key=True)
+    event_category = models.CharField(max_length=255)
     event_start = models.DateTimeField(null=True)
     event_end = models.DateTimeField(null=True)
     object_latitude = models.CharField(max_length=255)
@@ -36,7 +43,7 @@ class Faculty(models.Model):
 class AreaObjectFaculty(models.Model):
     area_object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="faculty_associations")
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="area_object_associations")
-    floor = models.IntegerField()
+    floor = models.CharField(max_length=255)
 
 class Institute(models.Model):
     id = models.AutoField(primary_key=True)
@@ -58,3 +65,11 @@ class User(models.Model):
     id = models.AutoField(primary_key=True)
     email = models.CharField(max_length=255)
     password = models.CharField(max_length=128)
+
+class UserObjectSearch(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_object_search")
+    object_latitude = models.CharField(max_length=255)
+    object_longitude = models.CharField(max_length=255)
+    object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="user_object_search")
+    timestamp = models.DateTimeField()
+    routeCreatedCount = models.IntegerField()
