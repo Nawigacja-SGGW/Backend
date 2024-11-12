@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserExtendedSerializer
 from rest_framework.authtoken.models import Token
 from .models import CustomUser
 
@@ -54,7 +54,12 @@ def register_user(request):
         serializer = UserSerializer(data=request.data)
         # Jeżeli tu sie wywala, usuncie baze danych i stworzcie ponownie
         if serializer.is_valid():
-            user = serializer.save()
+            validated_data = serializer.validated_data
+            password = validated_data.pop("password", None)
+            user = CustomUser(**validated_data)
+            if password:
+                user.set_password(password)
+            user.save()
             token = Token.objects.create(user=user)
             return Response({
                 "code": 201,
@@ -89,3 +94,22 @@ def logout_user(request):
     except:
         # Handle unexpected errors
         return Response({"code": 500, "message": "Server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class UserList(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserExtendedSerializer
+
+    def get(self, request, format=None):
+        try:
+            user = CustomUser.objects.all()
+            serializer = UserExtendedSerializer(user, many=True)
+            return Response({
+                "code": 200,
+                "user": serializer.data,
+                }, status=status.HTTP_200_OK)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

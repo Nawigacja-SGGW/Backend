@@ -90,7 +90,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['email', 'password']
-
+        extra_kwargs = {'password': {'write_only': True}}
 
 
 class UserObjectSearchSerializer(serializers.ModelSerializer):
@@ -102,3 +102,20 @@ class UserObjectSearchSerializer(serializers.ModelSerializer):
             'user', 'object_latitude', 'object_longitude', 
             'object', 'timestamp', 'routeCreatedCount'
         ]
+
+
+class UserObjectSearchShortenedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserObjectSearch
+        fields = [
+            'object_latitude', 'object_longitude', 'timestamp', 'routeCreatedCount'
+        ]
+
+
+class UserExtendedSerializer(serializers.ModelSerializer):    
+    user_object_search = UserObjectSearchShortenedSerializer(many=True)
+    
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'password', 'distance_sum', 'user_object_search']
+        extra_kwargs = {'password': {'write_only': True}}

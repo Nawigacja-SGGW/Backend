@@ -67,7 +67,6 @@ class ImportantPlace(models.Model):
     object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="important_place")
 
 
-
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
