@@ -94,26 +94,43 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserObjectSearchSerializer(serializers.ModelSerializer):
-    object = ObjectSerializer()
+    class Meta:
+        model = UserObjectSearch
+        fields = [
+            'user', 'object_latitude', 'object_longitude', 'timestamp', 'route_created_count'
+        ]
+
+
+class UserObjectSearchExtendedSerializer(serializers.ModelSerializer):
+    object = ObjectSerializer(read_only=True)
 
     class Meta:
         model = UserObjectSearch
         fields = [
-            'user', 'object_latitude', 'object_longitude', 
-            'object', 'timestamp', 'routeCreatedCount'
+            'user', 'object_latitude', 'object_longitude', 'object', 'timestamp', 'route_created_count'
         ]
+    
+    def create(self, validated_data):
+        latitude = validated_data.pop('object_latitude')
+        longitude = validated_data.pop('object_longitude')
 
+        try:
+            obj = Object.objects.get(latitude=latitude, longitude=longitude)
+        except Object.DoesNotExist:
+            raise serializers.ValidationError("Object with the specified latitude and longitude does not exist.")
+        
+        user_object_search = UserObjectSearch.objects.create(
+            object=obj,
+            object_latitude=latitude,
+            object_longitude=longitude,
+            **validated_data
+        )
 
-class UserObjectSearchShortenedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserObjectSearch
-        fields = [
-            'object_latitude', 'object_longitude', 'timestamp', 'routeCreatedCount'
-        ]
+        return user_object_search
 
 
 class UserExtendedSerializer(serializers.ModelSerializer):    
-    user_object_search = UserObjectSearchShortenedSerializer(many=True)
+    user_object_search = UserObjectSearchSerializer(many=True)
     
     class Meta:
         model = CustomUser

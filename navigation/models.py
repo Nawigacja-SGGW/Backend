@@ -110,4 +110,4 @@ class UserObjectSearch(models.Model):
     object_longitude = models.CharField(max_length=255)
     object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="user_object_search")
     timestamp = models.DateTimeField()
-    routeCreatedCount = models.IntegerField()
+    route_created_count = models.IntegerField()

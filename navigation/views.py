@@ -1,16 +1,10 @@
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import UserSerializer, UserExtendedSerializer
+from .serializers import ObjectSerializer, UserSerializer, UserExtendedSerializer, UserObjectSearchSerializer, UserObjectSearchExtendedSerializer
 from rest_framework.authtoken.models import Token
-from .models import CustomUser
+from .models import CustomUser, Object, UserObjectSearch
 
-
-# Create your views here.
-
-from rest_framework import generics
-from .models import Object
-from .serializers import ObjectSerializer
 
 class Object_list(generics.ListAPIView):
     queryset = Object.objects.all()
@@ -124,6 +118,39 @@ class Distance_sum_update(generics.UpdateAPIView):
             id = request.data.get('id')
             user = CustomUser.objects.get(id=id)
             serializer = UserExtendedSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=status.HTTP_200_OK)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class Route_created_count_update(generics.UpdateAPIView):
+    queryset = UserObjectSearch.objects.all()
+    serializer_class = UserObjectSearchExtendedSerializer
+
+    def post(self, request):
+        try:
+            serializer = UserObjectSearchExtendedSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=status.HTTP_200_OK)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def put(self, request):
+        try:
+            user = request.data.get('user')
+            object_latitude = request.data.get('object_latitude')
+            object_longitude = request.data.get('object_longitude')
+            user_object_search = UserObjectSearch.objects.get(user=user, object_latitude=object_latitude, object_longitude=object_longitude)
+            serializer = UserObjectSearchSerializer(user_object_search, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({"user": serializer.data,},status=status.HTTP_200_OK)

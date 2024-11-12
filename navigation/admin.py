@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Object, CustomUser, UserObjectSearch
+from .models import Object, CustomUser
 
 # Register your models here.
 admin.site.register(Object)
