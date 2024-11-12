@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .serializers import UserSerializer
 from rest_framework.authtoken.models import Token
-from .models import User
+from .models import CustomUser
 
 
 # Create your views here.
@@ -26,24 +26,66 @@ class ObjectList(generics.ListAPIView):
 
 @api_view(['POST'])
 def login_user(request):
-    return Response({})
+    try:
+        email = request.data.get('email')
+        password = request.data.get('password')
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response({"code": 400, "message": "Invalid login or password"}, status=status.HTTP_400_BAD_REQUEST)
+        if not user.check_password(password):
+            return Response({"code": 400, "message": "Invalid login or password"}, status=status.HTTP_400_BAD_REQUEST)
+        token, created = Token.objects.get_or_create(user=user)
+        serializer = UserSerializer(instance=user)
+        return Response({
+                            "code": 200,
+                            "message": "Login successful",
+                            "token": token.key
+                        }, status=status.HTTP_200_OK) 
+    except:
+        return Response({
+                "code": 500,
+                "message": "Server error"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 def register_user(request):
-    serializer = UserSerializer(data=request.data)
-    #return Response({ 'tu jeszcze dzila' })
-    if serializer.is_valid():
-        user = serializer.save()
-        token = Token.objects.create(user=user)
-        return Response({"token": token.key, "user": serializer.data})
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        serializer = UserSerializer(data=request.data)
+        # Jeżeli tu sie wywala, usuncie baze danych i stworzcie ponownie
+        if serializer.is_valid():
+            user = serializer.save()
+            token = Token.objects.create(user=user)
+            return Response({
+                "code": 201,
+                "message": "Register successful"
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+                "code": 400,
+                "message": "Incorrect e-mail or password format"
+            }, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({
+                "code": 500,
+                "message": "Server error"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['POST'])
 def logout_user(request):
-    return Response({})
+    token_key = request.data.get('token')
 
-# do usuniecia po przetestowaniu
-@api_view(['GET'])
-def test(request):
-    return Response({})
+    if not token_key:
+        return Response({"code": 401, "message": "Sesion or token disactive"}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        token = Token.objects.get(key=token_key)
+        token.delete()
+        return Response({"code": 200, "message": "Logout successful"}, status=status.HTTP_200_OK)
 
+    except Token.DoesNotExist:
+        # Token not found
+        return Response({"code": 401, "message": "Sesion or token disactive"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    except:
+        # Handle unexpected errors
+        return Response({"code": 500, "message": "Server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

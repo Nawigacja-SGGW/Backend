@@ -16,13 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import ObjectList, login_user, logout_user, register_user, test
+from .views import ObjectList, login_user, logout_user, register_user
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('objects/', ObjectList.as_view(), name='object-list'),
     path('auth/login', login_user, name='login'),
-    path('test/', test, name='test'),
     path('auth/logout', logout_user, name='logout'),
     path('auth/register', register_user, name='register'),
     #path('auth/reset-password-request', views.ResetPasswordRequestView.as_view(), name='reset_password_request'),

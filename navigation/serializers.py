@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Address, Guide, Object, PointObject, AreaObject, Faculty, 
-    AreaObjectFaculty, Institute, Entry, ImportantPlace, User, UserObjectSearch
+    AreaObjectFaculty, Institute, Entry, ImportantPlace, CustomUser, UserObjectSearch
 )
 from django.contrib.auth.models import User
 
@@ -88,7 +88,7 @@ class ImportantPlaceSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = ['email', 'password']
 
 

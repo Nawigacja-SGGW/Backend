@@ -68,7 +68,7 @@ class ImportantPlace(models.Model):
 
 
 
-class UserManager(BaseUserManager):
+class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Prosimy podać email")
@@ -90,7 +90,7 @@ class UserManager(BaseUserManager):
 
         return self.create_user(email, password, **extra_fields)
 
-class User(AbstractBaseUser, PermissionsMixin):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     email = models.EmailField(unique=True)
     distance_sum = models.IntegerField(default=0)
@@ -100,13 +100,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    objects = UserManager()
+    objects = CustomUserManager()
 
     def __str__(self):
         return self.email
 
 class UserObjectSearch(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_object_search")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="user_object_search")
     object_latitude = models.CharField(max_length=255)
     object_longitude = models.CharField(max_length=255)
     object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="user_object_search")
