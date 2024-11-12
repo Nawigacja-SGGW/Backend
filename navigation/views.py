@@ -12,7 +12,7 @@ from rest_framework import generics
 from .models import Object
 from .serializers import ObjectSerializer
 
-class ObjectList(generics.ListAPIView):
+class Object_list(generics.ListAPIView):
     queryset = Object.objects.all()
     serializer_class = ObjectSerializer
 
@@ -96,7 +96,7 @@ def logout_user(request):
         return Response({"code": 500, "message": "Server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class UserList(generics.ListAPIView):
+class User_list(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserExtendedSerializer
 
@@ -108,6 +108,25 @@ class UserList(generics.ListAPIView):
                 "code": 200,
                 "user": serializer.data,
                 }, status=status.HTTP_200_OK)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class Distance_sum_update(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserExtendedSerializer
+
+    def put(self, request):
+        try:
+            id = request.data.get('id')
+            user = CustomUser.objects.get(id=id)
+            serializer = UserExtendedSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"user": serializer.data,},status=status.HTTP_200_OK)
         except:
             return Response({
                 "code": 500,
