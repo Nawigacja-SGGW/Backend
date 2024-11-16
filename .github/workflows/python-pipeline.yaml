@@ -33,11 +33,6 @@ jobs:
       - name: Install dependencies
         run: |
           source venv/bin/activate
-          # Jeżeli nie masz pliku requirements.txt, wygeneruj go:
-          if [ ! -f "requirements.txt" ]; then
-            echo "requirements.txt not found. Creating it..."
-            pip freeze > requirements.txt  # Generuje plik requirements.txt
-          fi
           echo "Displaying contents of requirements.txt:"
           cat requirements.txt
           pip install -r requirements.txt  # Instalacja zależności
