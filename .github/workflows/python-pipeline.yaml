@@ -34,6 +34,7 @@ jobs:
           pip --version
       - name: Install dependencies
         run: |
+          source venv/bin/activate
           # Instalowanie zależności z pliku requirements.txt, jeśli istnieje
           if [ -f "requirements.txt" ]; then
             pip install -r requirements.txt
