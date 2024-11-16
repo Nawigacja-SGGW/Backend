@@ -30,17 +30,15 @@ jobs:
           uname -a
           python --version
           pip --version
-          python --version
-          pip --version
       - name: Install dependencies
         run: |
           source venv/bin/activate
-          # Instalowanie zależności z pliku requirements.txt, jeśli istnieje
-          if [ -f "requirements.txt" ]; then
-            pip install -r requirements.txt
+          # Jeżeli nie masz pliku requirements.txt, wygeneruj go:
+          if [ ! -f "requirements.txt" ]; then
+            echo "requirements.txt not found. Creating it..."
+            pip freeze > requirements.txt  # Generuje plik requirements.txt
           fi
-          # Alternatywnie instalowanie Django bezpośrednio
-          pip install django
+          pip install -r requirements.txt  # Instalacja zależności
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
