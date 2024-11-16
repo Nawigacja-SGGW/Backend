@@ -28,6 +28,14 @@ jobs:
           python --version
           pip --version
           
+      - name: Install dependencies
+        run: |
+          # Instalowanie zależności z pliku requirements.txt, jeśli istnieje
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+          fi
+          # Alternatywnie instalowanie Django bezpośrednio
+          pip install django
       - name: Create and start virtual environment
         run: |
           python -m venv venv
