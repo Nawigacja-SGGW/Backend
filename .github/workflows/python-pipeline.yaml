@@ -23,14 +23,15 @@ jobs:
           cache: 'pip'
       - name: Create and start virtual environment
         run: |
-          python -m venv venv
+          python3 -m venv venv
           source venv/bin/activate
       - name: Show system info
         run: |
           uname -a
           python --version
           pip --version
-          
+          python --version
+          pip --version
       - name: Install dependencies
         run: |
           # Instalowanie zależności z pliku requirements.txt, jeśli istnieje
