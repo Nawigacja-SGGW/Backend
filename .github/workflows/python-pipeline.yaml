@@ -21,7 +21,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-          
+      - name: Create and start virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
       - name: Show system info
         run: |
           uname -a
@@ -36,11 +39,6 @@ jobs:
           fi
           # Alternatywnie instalowanie Django bezpośrednio
           pip install django
-      - name: Create and start virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
