@@ -8,9 +8,15 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=6)
     city = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f"{self.street}, {self.postal_code}, {self.city}"
+
 class Guide(models.Model):
     id = models.AutoField(primary_key=True)
     description = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.id} {self.description}"
 
 class Object(PolymorphicModel):
     latitude = models.CharField(max_length=255)
@@ -31,9 +37,15 @@ class PointObject(Object):
     event_start = models.DateTimeField(null=True, blank=True)
     event_end = models.DateTimeField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.name} {self.event_category} {self.event_start} {self.latitude[:8]}, {self.longitude[:8]}"
+
 class AreaObject(Object):
     number = models.IntegerField(null=True, blank=True)
     is_paid = models.BooleanField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} {self.latitude[:8]}, {self.longitude[:8]}"
 
 class Faculty(models.Model):
     id = models.AutoField(primary_key=True)
@@ -41,20 +53,28 @@ class Faculty(models.Model):
     deans_office_number = models.CharField(max_length=255)
     area_objects = models.ManyToManyField(AreaObject, through="AreaObjectFaculty", related_name="faculties")
 
+    def __str__(self):
+        return f"{self.name}"
+
 class AreaObjectFaculty(models.Model):
     area_object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="faculty_associations")
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="area_object_associations")
     floor = models.CharField(max_length=255, null=True, blank=True)
+    
 
 class Institute(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     object = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="institute")
 
+
 class Entry(models.Model):
-    object_latitude = models.IntegerField()
-    object_longitude = models.IntegerField()
+    object_latitude = models.CharField(max_length=255)
+    object_longitude = models.CharField(max_length=255)
     object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="entry")
+
+    def __str__(self):
+        return f"{self.object_latitude} {self.object_longitude} {self.object}"
 
 class ImportantPlace(models.Model):
     id = models.AutoField(primary_key=True)
@@ -62,6 +82,9 @@ class ImportantPlace(models.Model):
     room = models.CharField(max_length=255, null=True, blank=True)
     object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="important_place")
 
+    def __str__(self):
+        return f"{self.floor} {self.room} {self.object}"
+        
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
