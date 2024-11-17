@@ -90,6 +90,36 @@ def logout_user(request):
         return Response({"code": 500, "message": "Server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+class Reset_password(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+    def put(self, request):
+        try:
+            token_key = request.data.get('token')
+            token = Token.objects.get(key=token_key)
+            user = CustomUser.objects.get(auth_token=token)
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                password = request.data.get('password')      
+                user.set_password(password)
+                user.save()
+                return Response({
+                    "code": 200,
+                    "message": "Password reset successful",
+                    }, status=status.HTTP_200_OK)
+            return Response({
+                "code": 400,
+                "message": "Password reset failed",
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class User_list(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserExtendedSerializer
