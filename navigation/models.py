@@ -22,22 +22,17 @@ class Object(models.Model):
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, blank=True, null=True, related_name="objects")
     guide = models.ForeignKey(Guide, on_delete=models.SET_NULL, blank=True, null=True, related_name="objects")
 
-class PointObject(models.Model):
-    id = models.AutoField(primary_key=True)
+    class Meta:
+        unique_together = ('latitude', 'longitude')
+
+class PointObject(Object):
     event_category = models.CharField(max_length=255)
     event_start = models.DateTimeField(null=True, blank=True)
     event_end = models.DateTimeField(null=True, blank=True)
-    object_latitude = models.CharField(max_length=255)
-    object_longitude = models.CharField(max_length=255)
-    object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="point_objects")
 
-class AreaObject(models.Model):
-    id = models.AutoField(primary_key=True)
+class AreaObject(Object):
     number = models.IntegerField(null=True, blank=True)
     is_paid = models.BooleanField(null=True, blank=True)
-    object_latitude = models.CharField(max_length=255)
-    object_longitude = models.CharField(max_length=255)
-    object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="area_objects")
 
 class Faculty(models.Model):
     id = models.AutoField(primary_key=True)
