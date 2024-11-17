@@ -1,19 +1,19 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import ObjectSerializer, UserSerializer, UserExtendedSerializer, UserObjectSearchSerializer, UserObjectSearchExtendedSerializer
+from .serializers import ObjectDynamicSerializer, UserSerializer, UserExtendedSerializer, UserObjectSearchSerializer, UserObjectSearchExtendedSerializer
 from rest_framework.authtoken.models import Token
 from .models import CustomUser, Object, UserObjectSearch
 
 
 class Object_list(generics.ListAPIView):
     queryset = Object.objects.all()
-    serializer_class = ObjectSerializer
+    serializer_class = ObjectDynamicSerializer
 
     def get(self, request, format=None):
         try:
             object = Object.objects.all()
-            serializer = ObjectSerializer(object, many=True)
+            serializer = ObjectDynamicSerializer(object, many=True)
             return Response(serializer.data)
         except:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

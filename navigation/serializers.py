@@ -29,28 +29,40 @@ class ObjectSerializer(serializers.ModelSerializer):
         ]
 
 
-class PointObjectSerializer(serializers.ModelSerializer):
-    object = ObjectSerializer()
+class PointObjectSerializer(ObjectSerializer):
 
     class Meta:
         model = PointObject
         fields = [
-            'id', 'event_category', 'event_start', 'event_end', 
-            'object_latitude', 'object_longitude', 'object'
+            'latitude', 'longitude', 'name', 'type', 'description', 
+            'image_url', 'website', 'address', 'guide', 'event_category',
+            'event_start', 'event_end'
         ]
 
 
-class AreaObjectSerializer(serializers.ModelSerializer):
-    object = ObjectSerializer()
+class AreaObjectSerializer(ObjectSerializer):
     entry = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     important_place = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = AreaObject
         fields = [
-            'id', 'number', 'is_paid', 'object_latitude', 'object_longitude', 
-            'object', 'entry', 'important_place'
+            'latitude', 'longitude', 'name', 'type', 'description', 
+            'image_url', 'website', 'address', 'guide', 'number',
+            'is_paid', 'entry', 'important_place'
         ]
+
+
+class ObjectDynamicSerializer(serializers.Serializer):
+    
+    def to_representation(self, instance):
+        if isinstance(instance, AreaObject):
+            serializer = AreaObjectSerializer(instance)
+        elif isinstance(instance, PointObject):
+            serializer = PointObjectSerializer(instance)
+        else:
+            raise ValueError("Unsupported instance type")
+        return serializer.data
 
 
 class FacultySerializer(serializers.ModelSerializer):

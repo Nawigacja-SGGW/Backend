@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from polymorphic.models import PolymorphicModel
 
 class Address(models.Model):
     id = models.AutoField(primary_key=True)
@@ -11,7 +12,7 @@ class Guide(models.Model):
     id = models.AutoField(primary_key=True)
     description = models.CharField(max_length=255, blank=True, null=True)
 
-class Object(models.Model):
+class Object(PolymorphicModel):
     latitude = models.CharField(max_length=255)
     longitude = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
