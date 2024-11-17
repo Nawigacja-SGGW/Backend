@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -112,6 +113,44 @@ class Reset_password(generics.UpdateAPIView):
             return Response({
                 "code": 400,
                 "message": "Password reset failed",
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class Reset_password_request(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+    def put(self, request):
+        try:
+            email = request.data.get('email')
+            user = CustomUser.objects.get(email=email)
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                token, _ = Token.objects.get_or_create(user=user)
+                reset_url = f"{request.scheme}://{request.get_host()}/password-reset-confirm/{token.key}/"
+                send_mail(
+                    subject='Nawigacja SGGW - resetowanie hasla/password reset',
+                    message=f"Link:\n\n{reset_url}",
+                    from_email=None,
+                    recipient_list=[email],
+                )
+                return Response({
+                "code": 200,
+                "message": "E-mail send",
+                }, status=status.HTTP_200_OK)
+            return Response({
+                "code": 400,
+                "message": "Incorrect e-mail",
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            return Response({
+                "code": 400,
+                "message": "Incorrect e-mail",
                 }, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({
