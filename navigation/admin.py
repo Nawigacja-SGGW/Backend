@@ -24,16 +24,9 @@ class UserAdmin(admin.ModelAdmin):
     model = CustomUser
 
 
-class AddressAdmin(admin.ModelAdmin):
-    model = Address
-
-    def __str__(self):
-        return f"{self.street}, {self.postal_code}, {self.city}"
-
-
 admin.site.register(CustomUser, UserAdmin)
 admin.site.register(AreaObject, AreaObjectAdmin)
 admin.site.register(PointObject)
 
-admin.site.register(Address, AddressAdmin)
+admin.site.register(Address)
 admin.site.register(Guide)
