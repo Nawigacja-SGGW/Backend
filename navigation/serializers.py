@@ -24,7 +24,7 @@ class ObjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Object
         fields = [
-            'latitude', 'longitude', 'name', 'type', 'description', 
+            'id', 'latitude', 'longitude', 'name', 'type', 'description',
             'image_url', 'website', 'address', 'guide'
         ]
 
@@ -34,7 +34,7 @@ class PointObjectSerializer(ObjectSerializer):
     class Meta:
         model = PointObject
         fields = [
-            'latitude', 'longitude', 'name', 'type', 'description', 
+            'id', 'latitude', 'longitude', 'name', 'type', 'description',
             'image_url', 'website', 'address', 'guide', 'event_category',
             'event_start', 'event_end'
         ]
@@ -47,7 +47,7 @@ class AreaObjectSerializer(ObjectSerializer):
     class Meta:
         model = AreaObject
         fields = [
-            'latitude', 'longitude', 'name', 'type', 'description', 
+            'id', 'latitude', 'longitude', 'name', 'type', 'description',
             'image_url', 'website', 'address', 'guide', 'number',
             'is_paid', 'entry', 'important_place'
         ]
@@ -72,12 +72,12 @@ class FacultySerializer(serializers.ModelSerializer):
 
 
 class AreaObjectFacultySerializer(serializers.ModelSerializer):
-    area_object = AreaObjectSerializer()
+    object_id = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     faculty = FacultySerializer()
 
     class Meta:
         model = AreaObjectFaculty
-        fields = ['area_object', 'faculty', 'floor']
+        fields = ['object_id', 'faculty', 'floor']
 
 
 class InstituteSerializer(serializers.ModelSerializer):
@@ -89,13 +89,13 @@ class InstituteSerializer(serializers.ModelSerializer):
 class EntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Entry
-        fields = ['object_latitude', 'object_longitude', 'object']
+        fields = ['id', 'object_id', 'latitude', 'longitude']
 
 
 class ImportantPlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportantPlace
-        fields = ['id', 'floor', 'room', 'object']
+        fields = ['id', 'floor', 'room', 'object_id']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -109,7 +109,7 @@ class UserObjectSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserObjectSearch
         fields = [
-            'user', 'object_latitude', 'object_longitude', 'timestamp', 'route_created_count'
+            'user', 'object_id', 'timestamp', 'route_created_count'
         ]
 
 
@@ -119,22 +119,20 @@ class UserObjectSearchExtendedSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserObjectSearch
         fields = [
-            'user', 'object_latitude', 'object_longitude', 'object', 'timestamp', 'route_created_count'
+            'user', 'object_id', 'timestamp', 'route_created_count'
         ]
     
     def create(self, validated_data):
-        latitude = validated_data.pop('object_latitude')
-        longitude = validated_data.pop('object_longitude')
+        object_id = validated_data.pop('object_id')
 
         try:
-            obj = Object.objects.get(latitude=latitude, longitude=longitude)
+            obj = Object.objects.get(id=object_id)
         except Object.DoesNotExist:
             raise serializers.ValidationError("Object with the specified latitude and longitude does not exist.")
         
         user_object_search = UserObjectSearch.objects.create(
             object=obj,
-            object_latitude=latitude,
-            object_longitude=longitude,
+            id=object_id,
             **validated_data
         )
 

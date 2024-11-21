@@ -19,6 +19,7 @@ class Guide(models.Model):
         return f"{self.id} {self.description}"
 
 class Object(PolymorphicModel):
+    id = models.AutoField(primary_key=True)
     latitude = models.CharField(max_length=255)
     longitude = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
@@ -57,8 +58,8 @@ class Faculty(models.Model):
         return f"{self.name}"
 
 class AreaObjectFaculty(models.Model):
-    area_object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="faculty_associations")
-    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="area_object_associations")
+    object_id = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="faculty_associations")
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="object_associations")
     floor = models.CharField(max_length=255, null=True, blank=True)
     
 
@@ -69,21 +70,26 @@ class Institute(models.Model):
 
 
 class Entry(models.Model):
-    object_latitude = models.CharField(max_length=255)
-    object_longitude = models.CharField(max_length=255)
-    object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="entry")
+    id = models.AutoField(primary_key=True)
+    object_id = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="entry")
+    latitude = models.CharField(max_length=255)
+    longitude = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = ('latitude', 'longitude')
 
     def __str__(self):
-        return f"{self.object_latitude} {self.object_longitude} {self.object}"
+        return f"{self.id} {self.latitude} {self.longitude} {self.object_id}"
+
 
 class ImportantPlace(models.Model):
     id = models.AutoField(primary_key=True)
     floor = models.IntegerField()
     room = models.CharField(max_length=255, null=True, blank=True)
-    object = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="important_place")
+    object_id = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="important_place")
 
     def __str__(self):
-        return f"{self.floor} {self.room} {self.object}"
+        return f"{self.floor} {self.room} {self.object_id}"
         
 
 class CustomUserManager(BaseUserManager):
@@ -125,8 +131,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class UserObjectSearch(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="user_object_search")
-    object_latitude = models.CharField(max_length=255)
-    object_longitude = models.CharField(max_length=255)
-    object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="user_object_search")
+    object_id = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="user_object_search")
     timestamp = models.DateTimeField()
     route_created_count = models.IntegerField()
