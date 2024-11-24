@@ -1,23 +1,49 @@
 from django.core.mail import send_mail
-from rest_framework import generics, status
+from rest_framework import generics, status, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import ObjectDynamicSerializer, UserSerializer, UserExtendedSerializer, UserObjectSearchSerializer, UserObjectSearchExtendedSerializer
+from .serializers import ObjectDynamicSerializer, UserSerializer, UserExtendedSerializer, UserObjectSearchSerializer, UserObjectSearchExtendedSerializer, PointObjectSerializer, AreaObjectSerializer
 from rest_framework.authtoken.models import Token
-from .models import CustomUser, Object, UserObjectSearch
+from .models import CustomUser, Object, UserObjectSearch, PointObject, AreaObject
 
 
 class Object_list(generics.ListAPIView):
-    queryset = Object.objects.all()
-    serializer_class = ObjectDynamicSerializer
 
     def get(self, request, format=None):
         try:
-            object = Object.objects.all()
-            serializer = ObjectDynamicSerializer(object, many=True)
-            return Response(serializer.data)
+            point_objects = PointObject.objects.all()
+            point_object_serializer = PointObjectSerializer(point_objects, many=True)
+            area_objects = AreaObject.objects.all()
+            area_object_serializer = AreaObjectSerializer(area_objects, many=True)
+            return Response({
+                    "code": 200,
+                    "point_objects": point_object_serializer.data,
+                    "area_objects": area_object_serializer.data
+                }, status=status.HTTP_200_OK)
         except:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class Object_single(generics.ListAPIView):
+    def get(self, request, format=None):
+        try:
+            id = request.data.get("id")
+            object = Object.objects.get(id=id)
+            serializer = ObjectDynamicSerializer(object, data=request.data, partial=True)
+            if serializer.is_valid():
+                return Response({
+                    "code": 200,
+                    "object": serializer.data
+                }, status=status.HTTP_200_OK)
+        except Object.DoesNotExist:
+            return Response({
+                "code": 400,
+                "message": "Incorrect id",
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 def login_user(request):
@@ -35,8 +61,9 @@ def login_user(request):
         return Response({
                             "code": 200,
                             "message": "Login successful",
-                            "token": token.key
-                        }, status=status.HTTP_200_OK) 
+                            "token": token.key,
+                            "userID": serializer.data.get("id")
+                        }, status=status.HTTP_200_OK)
     except:
         return Response({
                 "code": 500,
@@ -114,6 +141,9 @@ class Reset_password(generics.UpdateAPIView):
                 "code": 400,
                 "message": "Password reset failed",
                 }, status=status.HTTP_400_BAD_REQUEST)
+        except Token.DoesNotExist:
+            # Token not found
+            return Response({"code": 401, "message": "Sesion or token disactive"}, status=status.HTTP_401_UNAUTHORIZED)
         except:
             return Response({
                 "code": 500,
@@ -182,6 +212,22 @@ class Distance_sum_update(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserExtendedSerializer
 
+    def get(self, request):
+        try:
+            id = request.data.get('userID')
+            user = CustomUser.objects.get(id=id)
+            serializer = UserExtendedSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                return Response({
+                        "code": 200,
+                        "distance_sum": serializer.data.get("distance_sum"),
+                        }, status=status.HTTP_200_OK)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def put(self, request):
         try:
             id = request.data.get('id')
@@ -203,6 +249,15 @@ class Route_created_count_update(generics.UpdateAPIView):
 
     def post(self, request):
         try:
+            object_id = request.data.get("object_id")
+            user = request.data.get("user")
+            try:
+                Object.objects.get(id=object_id)
+                CustomUser.objects.get(id=user)
+            except Object.DoesNotExist:
+                raise serializers.ValidationError("Object does not exist.")
+            except CustomUser.DoesNotExist:
+                raise serializers.ValidationError("User does not exist.")
             serializer = UserObjectSearchExtendedSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -216,13 +271,12 @@ class Route_created_count_update(generics.UpdateAPIView):
     def put(self, request):
         try:
             user = request.data.get('user')
-            object_latitude = request.data.get('object_latitude')
-            object_longitude = request.data.get('object_longitude')
-            user_object_search = UserObjectSearch.objects.get(user=user, object_latitude=object_latitude, object_longitude=object_longitude)
+            object_id = request.data.get('object_id')
+            user_object_search = UserObjectSearch.objects.get(user=user, object_id=object_id)
             serializer = UserObjectSearchSerializer(user_object_search, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({"user": serializer.data,},status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_200_OK)
         except:
             return Response({
                 "code": 500,

@@ -34,7 +34,7 @@ class Object(PolymorphicModel):
         unique_together = ('latitude', 'longitude')
 
 class PointObject(Object):
-    event_category = models.CharField(max_length=255)
+    event_category = models.CharField(max_length=255,null=True, blank=True)
     event_start = models.DateTimeField(null=True, blank=True)
     event_end = models.DateTimeField(null=True, blank=True)
 
@@ -58,7 +58,7 @@ class Faculty(models.Model):
         return f"{self.name}"
 
 class AreaObjectFaculty(models.Model):
-    object_id = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="faculty_associations")
+    object_id = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="faculty_associations")
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="object_associations")
     floor = models.CharField(max_length=255, null=True, blank=True)
     

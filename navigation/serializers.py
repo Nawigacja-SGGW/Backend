@@ -101,7 +101,7 @@ class ImportantPlaceSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['email', 'password']
+        fields = ['id', 'email', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -114,27 +114,14 @@ class UserObjectSearchSerializer(serializers.ModelSerializer):
 
 
 class UserObjectSearchExtendedSerializer(serializers.ModelSerializer):
-    object = ObjectSerializer(read_only=True)
-
     class Meta:
         model = UserObjectSearch
         fields = [
             'user', 'object_id', 'timestamp', 'route_created_count'
         ]
-    
-    def create(self, validated_data):
-        object_id = validated_data.pop('object_id')
 
-        try:
-            obj = Object.objects.get(id=object_id)
-        except Object.DoesNotExist:
-            raise serializers.ValidationError("Object with the specified latitude and longitude does not exist.")
-        
-        user_object_search = UserObjectSearch.objects.create(
-            object=obj,
-            id=object_id,
-            **validated_data
-        )
+    def create(self, validated_data):
+        user_object_search = UserObjectSearch.objects.create(**validated_data)
 
         return user_object_search
 
