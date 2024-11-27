@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+import os
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +30,7 @@ SECRET_KEY = 'django-insecure-l(g^h-t9+1s-t@pcryo%fd#(l2gc_8()r!__fb3cqmff2upbkx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'sggw-nawigacja-dev-app-api.azurewebsites.net']
 
 
 # Application definition
@@ -39,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'navigation',
+    #'navigation',
+    'navigation.apps.NavigationConfig',
 ]
 
 MIDDLEWARE = [
@@ -78,9 +84,24 @@ WSGI_APPLICATION = 'navigation.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+            'ENGINE': 'mssql',
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT', '1433'),
+            'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'extra_params': (
+                'Persist Security Info=False;'
+                'MultipleActiveResultSets=False;'
+                'Encrypt=yes;'
+                'TrustServerCertificate=yes;'
+                'Connection Timeout=30;'
+                'Encrypt=False;'
+                ),
+            },
+    },
 }
 
 

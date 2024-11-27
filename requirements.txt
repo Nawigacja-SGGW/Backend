@@ -1,9 +1,10 @@
 asgiref==3.8.1
 Django==4.2.9
-django-polymorphic==3.1.0
-djangorestframework==3.15.2
-python-dotenv==1.0.1
-setuptools==75.5.0
 sqlparse==0.5.2
 typing_extensions==4.12.2
 tzdata==2024.2
+djangorestframework==3.15.2
+mssql-django
+python-dotenv==1.0.1
+django-polymorphic==3.1.0
+setuptools==75.5.0
