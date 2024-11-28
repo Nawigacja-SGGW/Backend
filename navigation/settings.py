@@ -147,3 +147,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'navigation.CustomUser'
+
+# E-mail settings - should be changed to our own
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'    # Use 'django.core.mail.backends.console.EmailBackend' for testing in the console
+EMAIL_HOST = 'smtp.example.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@example.com'
+EMAIL_HOST_PASSWORD = 'your-email-password'
+DEFAULT_FROM_EMAIL = 'Your App <noreply@example.com>'
