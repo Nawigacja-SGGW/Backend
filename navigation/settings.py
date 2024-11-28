@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     #'navigation',
     'navigation.apps.NavigationConfig',
+    'polymorphic'
 ]
 
 MIDDLEWARE = [
