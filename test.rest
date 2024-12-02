@@ -67,30 +67,20 @@ Content-Type: application/json
 
 ###
 
-GET http://127.0.0.1:8000/user-distance-sum
+GET http://127.0.0.1:8000/user-history
 Content-Type: application/json
 
 {
-    "id": "2"
+    "user_id": "1"
 }
 
 ###
 
-PATCH http://127.0.0.1:8000/user-distance-sum
+POST http://127.0.0.1:8000/user-history
 Content-Type: application/json
 
 {
-    "id": "2",
-    "distance_sum": "46"
-}
-
-###
-
-POST http://127.0.0.1:8000/user-route-created-count
-Content-Type: application/json
-
-{
-    "user": "1",
+    "user_id": "1",
     "object_id": "2",
     "timestamp": "2024-11-30 10:00:00",
     "route_created_count": "1"
@@ -98,12 +88,31 @@ Content-Type: application/json
 
 ###
 
-PUT http://127.0.0.1:8000/user-route-created-count
+PUT http://127.0.0.1:8000/user-history
 Content-Type: application/json
 
 {
-    "user": "1",
+    "user_id": "1",
     "object_id": "2",
     "timestamp": "2024-11-30 10:00:00",
     "route_created_count": "2"
+}
+
+###
+
+GET http://127.0.0.1:8000/user-statistics
+Content-Type: application/json
+
+{
+    "user_id": "2"
+}
+
+###
+
+PATCH http://127.0.0.1:8000/user-statistics
+Content-Type: application/json
+
+{
+    "user_id": "2",
+    "distance_sum": "46"
 }

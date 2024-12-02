@@ -1,55 +1,10 @@
 from .models import AreaObject, CustomUser, Object, PointObject, UserObjectSearch
 from .serializers import AreaObjectSerializer, ObjectDynamicSerializer, PointObjectSerializer, UserSerializer, UserExtendedSerializer, UserObjectSearchSerializer, UserObjectSearchExtendedSerializer
 from django.core.mail import send_mail
-from rest_framework import generics, serializers, status
+from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-class Distance_sum_update(APIView):
-
-    def get(self, request):
-        try:
-            id = request.data.get('id')
-            user = CustomUser.objects.get(id=id)
-            serializer = UserExtendedSerializer(user, data=request.data, partial=True)
-            if serializer.is_valid():
-                return Response({
-                        "code": 200,
-                        "distance_sum": serializer.data.get("distance_sum"),
-                        }, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-                return Response({
-                    "code": 400,
-                    "message": "Incorrect id"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response({
-                "code": 500,
-                "message": "Server error"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def patch(self, request):
-        try:
-            id = request.data.get('id')
-            user = CustomUser.objects.get(id=id)
-            serializer = UserExtendedSerializer(user, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({
-                    "code": 200,
-                    "message": "Data updated"
-                    }, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-                return Response({
-                    "code": 400,
-                    "message": "Incorrect id"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response({
-                "code": 500,
-                "message": "Server error"
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class Login(APIView):
     
@@ -69,7 +24,7 @@ class Login(APIView):
                                 "code": 200,
                                 "message": "Login successful",
                                 "token": token.key,
-                                "userID": serializer.data.get("id")
+                                "user_id": serializer.data.get("id")
                             }, status=status.HTTP_200_OK)
         except:
             return Response({
@@ -221,23 +176,50 @@ class Reset_password_request(APIView):
                 "message": "Server error"
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class Route_created_count_update(APIView):
+class User_history(APIView):
+
+    def get(self, request):
+        try:
+            user_id = request.data.get('user_id')
+            user = CustomUser.objects.get(id=user_id)
+            history = UserObjectSearch.objects.filter(user=user_id).order_by('-timestamp')[:5]
+            serializer = UserObjectSearchSerializer(history, many=True)
+            return Response({
+                "code": 200,
+                "history": serializer.data
+                }, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({
+                "code": 400,
+                "message": "Incorrect user_id"
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
         try:
-            user = request.data.get('user')
+            user_id = request.data.get('user_id')
             object_id = request.data.get('object_id')
-            try:
-                CustomUser.objects.get(id=user)
-                Object.objects.get(id=object_id)
-            except Object.DoesNotExist:
-                raise serializers.ValidationError("Object does not exist.")
-            except CustomUser.DoesNotExist:
-                raise serializers.ValidationError("User does not exist.")
+            user = CustomUser.objects.get(id=user_id)
+            object = Object.objects.get(id=object_id)
+            request.data['user'] = request.data.pop('user_id')
             serializer = UserObjectSearchExtendedSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(status=status.HTTP_200_OK)
+        except Object.DoesNotExist:
+                return Response({
+                "code": 400,
+                "message": "Incorrect object_id"
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            return Response({
+            "code": 400,
+            "message": "Incorrect user_id"
+            }, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({
                 "code": 500,
@@ -246,13 +228,31 @@ class Route_created_count_update(APIView):
     
     def put(self, request):
         try:
-            user = request.data.get('user')
+            user_id = request.data.get('user_id')
             object_id = request.data.get('object_id')
-            user_object_search = UserObjectSearch.objects.get(user=user, object_id=object_id)
+            user = CustomUser.objects.get(id=user_id)
+            object = Object.objects.get(id=object_id)
+            request.data['user'] = request.data.pop('user_id')
+            user_object_search = UserObjectSearch.objects.get(user=user_id, object_id=object_id)
             serializer = UserObjectSearchSerializer(user_object_search, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(status=status.HTTP_200_OK)
+        except Object.DoesNotExist:
+            return Response({
+            "code": 400,
+            "message": "Incorrect object_id"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            return Response({
+            "code": 400,
+            "message": "Incorrect user_id"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except UserObjectSearch.DoesNotExist:
+            return Response({
+            "code": 400,
+            "message": "Combination of user_id and object_id does not exist"
+            }, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({
                 "code": 500,
@@ -269,6 +269,57 @@ class User_list(generics.ListAPIView):
                 "code": 200,
                 "user": serializer.data,
                 }, status=status.HTTP_200_OK)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class User_statistics(APIView):
+
+    def get(self, request):
+        try:
+            user_id = request.data.get('user_id')
+            user = CustomUser.objects.get(id=user_id)
+            distance_sum = user.distance_sum
+            unique_places_visited_count = UserObjectSearch.objects.filter(user=user_id).count()
+            top_five_visited_places = UserObjectSearch.objects.filter(user=user_id).order_by('-route_created_count')[:5]
+            serializer = UserObjectSearchSerializer(top_five_visited_places, many=True)
+            return Response({
+                    "code": 200,
+                    "statistics":{
+                        "distance_sum": distance_sum,
+                        "unique_places_visited_count": unique_places_visited_count,
+                        "top_five_visited_places": serializer.data
+                        }
+                    }, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+                    return Response({
+                        "code": 400,
+                        "message": "Incorrect user_id"
+                        }, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def patch(self, request):
+        try:
+            user_id = request.data.get('user_id')
+            user = CustomUser.objects.get(id=user_id)
+            serializer = UserExtendedSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "code": 200,
+                    "message": "Data updated"
+                    }, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+                return Response({
+                    "code": 400,
+                    "message": "Incorrect user_id"
+                    }, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({
                 "code": 500,
