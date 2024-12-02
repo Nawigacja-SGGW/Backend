@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from .serializers import ObjectDynamicSerializer, UserSerializer, UserExtendedSerializer, UserObjectSearchSerializer, UserObjectSearchExtendedSerializer, PointObjectSerializer, AreaObjectSerializer
 from rest_framework.authtoken.models import Token
 from .models import CustomUser, Object, UserObjectSearch, PointObject, AreaObject
+import traceback
 
 
 class Object_list(generics.ListAPIView):
@@ -21,7 +22,10 @@ class Object_list(generics.ListAPIView):
                     "area_objects": area_object_serializer.data
                 }, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            traceback_string = traceback.format_exc()
+            return Response({"exception": str(e),
+                             "traceback": traceback_string
+                            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class Object_single(generics.ListAPIView):
     def get(self, request, format=None):
