@@ -20,8 +20,8 @@ class Object_list(generics.ListAPIView):
                     "point_objects": point_object_serializer.data,
                     "area_objects": area_object_serializer.data
                 }, status=status.HTTP_200_OK)
-        except:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class Object_single(generics.ListAPIView):
     def get(self, request, format=None):
