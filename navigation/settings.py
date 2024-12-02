@@ -30,7 +30,17 @@ SECRET_KEY = 'django-insecure-l(g^h-t9+1s-t@pcryo%fd#(l2gc_8()r!__fb3cqmff2upbkx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'sggw-nawigacja-dev-app-api.azurewebsites.net', '169.254.129.4']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'sggw-nawigacja-dev-app-api.azurewebsites.net',
+    '169.254.129.4',
+    '169.254.129.6',
+    '169.254.129.8',
+    '169.254.129.10',
+    '169.254.129.12',
+    '169.254.129.14'
+]
 
 
 # Application definition
