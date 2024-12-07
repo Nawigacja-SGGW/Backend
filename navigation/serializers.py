@@ -109,7 +109,7 @@ class UserObjectSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserObjectSearch
         fields = [
-            'user', 'object_id', 'timestamp', 'route_created_count'
+            'object_id', 'timestamp', 'route_created_count'
         ]
 
 

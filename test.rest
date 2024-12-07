@@ -1,0 +1,118 @@
+# File used for testing endpoints in VS Code with the "REST Client" extension
+
+GET http://127.0.0.1:8000/all-users
+Content-Type: application/json
+
+###
+
+POST http://127.0.0.1:8000/auth/login
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "123"
+}
+
+###
+
+POST http://127.0.0.1:8000/auth/logout
+Content-Type: application/json
+
+{
+    "token": "..."
+}
+
+###
+
+POST http://127.0.0.1:8000/auth/register
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "123"
+}
+
+###
+
+PATCH http://127.0.0.1:8000/auth/reset-password
+Content-Type: application/json
+
+{
+    "token": "...",
+    "password": "123"
+}
+
+###
+
+PATCH http://127.0.0.1:8000/auth/reset-password-request
+Content-Type: application/json
+
+{
+    "email": "test@example.com"
+}
+
+###
+
+GET http://127.0.0.1:8000/objects
+Content-Type: application/json
+
+###
+
+GET http://127.0.0.1:8000/single-object
+Content-Type: application/json
+
+{
+    "id": "1"
+}
+
+###
+
+GET http://127.0.0.1:8000/user-history
+Content-Type: application/json
+
+{
+    "user_id": "1"
+}
+
+###
+
+POST http://127.0.0.1:8000/user-history
+Content-Type: application/json
+
+{
+    "user_id": "1",
+    "object_id": "2",
+    "timestamp": "2024-11-30 10:00:00",
+    "route_created_count": "1"
+}
+
+###
+
+PUT http://127.0.0.1:8000/user-history
+Content-Type: application/json
+
+{
+    "user_id": "1",
+    "object_id": "2",
+    "timestamp": "2024-11-30 10:00:00",
+    "route_created_count": "2"
+}
+
+###
+
+GET http://127.0.0.1:8000/user-statistics
+Content-Type: application/json
+
+{
+    "user_id": "2"
+}
+
+###
+
+PATCH http://127.0.0.1:8000/user-statistics
+Content-Type: application/json
+
+{
+    "user_id": "2",
+    "distance_sum": "46"
+}
