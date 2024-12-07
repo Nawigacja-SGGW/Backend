@@ -8,3 +8,4 @@ mssql-django
 python-dotenv==1.0.1
 django-polymorphic==3.1.0
 setuptools==75.5.0
+whitenoise==6.8.2
