@@ -42,6 +42,10 @@ ALLOWED_HOSTS = [
     '169.254.129.14'
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://sggw-nawigacja-dev-app-api.azurewebsites.net'
+]
+
 
 # Application definition
 
