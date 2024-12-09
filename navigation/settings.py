@@ -34,8 +34,6 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'sggw-nawigacja-dev-app-api.azurewebsites.net',
-    '169.254.129.4',
-    '169.254.129.6',
     '169.254.129.8',
     '169.254.129.10',
     '169.254.129.12',
@@ -168,8 +166,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'navigation.CustomUser'
 
 # E-mail settings - should be changed to our own
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'    # Use 'django.core.mail.backends.console.EmailBackend' for testing in the console
-EMAIL_HOST = 'smtp.example.com'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# django.core.mail.backends.smtp.EmailBackend - sends an e-mail
+# django.core.mail.backends.console.EmailBackend - writes an e-mail to the console
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'your-email@example.com'
