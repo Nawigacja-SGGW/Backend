@@ -8,13 +8,13 @@ from django.contrib.auth.models import User
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ['id', 'street', 'postal_code', 'city']
+        fields = ['id', 'street', 'postal_code', 'city', 'city_eng']
 
 
 class GuideSerializer(serializers.ModelSerializer):
     class Meta:
         model = Guide
-        fields = ['id', 'description']
+        fields = ['id', 'description', 'description_eng']
 
 
 class ObjectSerializer(serializers.ModelSerializer):
@@ -24,7 +24,7 @@ class ObjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Object
         fields = [
-            'id', 'latitude', 'longitude', 'name', 'type', 'description',
+            'id', 'latitude', 'longitude', 'name', 'name_eng', 'type', 'description', 'description_eng',
             'image_url', 'website', 'address', 'guide'
         ]
 
@@ -68,7 +68,7 @@ class ObjectDynamicSerializer(serializers.Serializer):
 class FacultySerializer(serializers.ModelSerializer):
     class Meta:
         model = Faculty
-        fields = ['id', 'name', 'deans_office_number']
+        fields = ['id', 'name', 'name_eng', 'deans_office_number']
 
 
 class AreaObjectFacultySerializer(serializers.ModelSerializer):
@@ -83,7 +83,7 @@ class AreaObjectFacultySerializer(serializers.ModelSerializer):
 class InstituteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institute
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'name_eng']
 
 
 class EntrySerializer(serializers.ModelSerializer):
