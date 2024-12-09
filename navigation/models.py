@@ -7,24 +7,28 @@ class Address(models.Model):
     street = models.CharField(max_length=255)
     postal_code = models.CharField(max_length=6)
     city = models.CharField(max_length=255)
+    city_eng = models.CharField(max_length=255)
 
     def __str__(self):
-        return f"{self.street}, {self.postal_code}, {self.city}"
+        return f"{self.street}, {self.postal_code}, {self.city}, {self.city_eng}"
 
 class Guide(models.Model):
     id = models.AutoField(primary_key=True)
     description = models.CharField(max_length=255, blank=True, null=True)
+    description_eng = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.id} {self.description}"
+        return f"{self.id} {self.description} {self.description_eng}"
 
 class Object(PolymorphicModel):
     id = models.AutoField(primary_key=True)
     latitude = models.CharField(max_length=255)
     longitude = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
+    name_eng = models.CharField(max_length=255)
     type = models.CharField(max_length=255, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
+    description_eng = models.CharField(max_length=255, blank=True, null=True)
     image_url = models.CharField(max_length=255, blank=True, null=True)
     website = models.CharField(max_length=255, blank=True, null=True)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, blank=True, null=True, related_name="objects")
@@ -51,11 +55,12 @@ class AreaObject(Object):
 class Faculty(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
+    name_eng = models.CharField(max_length=255)
     deans_office_number = models.CharField(max_length=255)
     area_objects = models.ManyToManyField(AreaObject, through="AreaObjectFaculty", related_name="faculties")
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name} {self.name_eng}"
 
 class AreaObjectFaculty(models.Model):
     object_id = models.ForeignKey(AreaObject, on_delete=models.CASCADE, related_name="faculty_associations")
@@ -66,6 +71,7 @@ class AreaObjectFaculty(models.Model):
 class Institute(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
+    name_eng = models.CharField(max_length=255)
     object = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="institute")
 
 
