@@ -40,8 +40,14 @@ class PointObjectSerializer(ObjectSerializer):
         ]
 
 
+class EntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Entry
+        fields = ['id', 'latitude', 'longitude']
+
+
 class AreaObjectSerializer(ObjectSerializer):
-    entry = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    entry = EntrySerializer(many=True, read_only=True)
     important_place = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
@@ -85,11 +91,6 @@ class InstituteSerializer(serializers.ModelSerializer):
         model = Institute
         fields = ['id', 'name', 'name_eng']
 
-
-class EntrySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Entry
-        fields = ['id', 'object_id', 'latitude', 'longitude']
 
 
 class ImportantPlaceSerializer(serializers.ModelSerializer):
