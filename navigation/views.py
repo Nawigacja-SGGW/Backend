@@ -67,7 +67,7 @@ class Object_single(generics.RetrieveAPIView):
     
     def get(self, request):
         try:
-            id = request.data.get("id")
+            id = request.query_params.get("id")
             object = Object.objects.get(id=id)
             serializer = ObjectDynamicSerializer(object, data=request.data, partial=True)
             if serializer.is_valid():
@@ -180,7 +180,7 @@ class User_history(APIView):
 
     def get(self, request):
         try:
-            user_id = request.data.get('user_id')
+            user_id = request.query_params.get('user_id')
             user = CustomUser.objects.get(id=user_id)
             history = UserObjectSearch.objects.filter(user=user_id).order_by('-timestamp')[:5]
             serializer = UserObjectSearchSerializer(history, many=True)
@@ -279,7 +279,7 @@ class User_statistics(APIView):
 
     def get(self, request):
         try:
-            user_id = request.data.get('user_id')
+            user_id = request.query_params.get('user_id')
             user = CustomUser.objects.get(id=user_id)
             distance_sum = user.distance_sum
             unique_places_visited_count = UserObjectSearch.objects.filter(user=user_id).count()
