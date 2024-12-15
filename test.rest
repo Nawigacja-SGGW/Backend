@@ -58,21 +58,13 @@ Content-Type: application/json
 
 ###
 
-GET http://127.0.0.1:8000/single-object
+GET http://127.0.0.1:8000/single-object?id=1
 Content-Type: application/json
-
-{
-    "id": "1"
-}
 
 ###
 
-GET http://127.0.0.1:8000/user-history
+GET http://127.0.0.1:8000/user-history?user_id=1
 Content-Type: application/json
-
-{
-    "user_id": "1"
-}
 
 ###
 
@@ -81,31 +73,23 @@ Content-Type: application/json
 
 {
     "user_id": "1",
-    "object_id": "2",
-    "timestamp": "2024-11-30 10:00:00",
-    "route_created_count": "1"
+    "object_id": "2"
 }
 
 ###
 
-PUT http://127.0.0.1:8000/user-history
+PATCH http://127.0.0.1:8000/user-history
 Content-Type: application/json
 
 {
     "user_id": "1",
-    "object_id": "2",
-    "timestamp": "2024-11-30 10:00:00",
-    "route_created_count": "2"
+    "object_id": "2"
 }
 
 ###
 
-GET http://127.0.0.1:8000/user-statistics
+GET http://127.0.0.1:8000/user-statistics?user_id=2
 Content-Type: application/json
-
-{
-    "user_id": "2"
-}
 
 ###
 
