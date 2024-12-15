@@ -1,9 +1,10 @@
-from rest_framework import serializers
 from .models import (
-    Address, Guide, Object, PointObject, AreaObject, Faculty, 
-    AreaObjectFaculty, Institute, Entry, ImportantPlace, CustomUser, UserObjectSearch
+    Address, AreaObject, AreaObjectFaculty, CustomUser, Entry, Faculty,
+    Guide, ImportantPlace, Institute, Object, PointObject, UserObjectSearch
 )
 from django.contrib.auth.models import User
+from rest_framework import serializers
+
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
@@ -123,7 +124,6 @@ class UserObjectSearchExtendedSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_object_search = UserObjectSearch.objects.create(**validated_data)
-
         return user_object_search
 
 

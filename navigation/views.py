@@ -5,6 +5,7 @@ from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from datetime import datetime
 
 class Login(APIView):
     
@@ -199,17 +200,37 @@ class User_history(APIView):
                 "message": "Server error"
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def post(self, request):
+    def post(self, request, redirect=False):
         try:
             user_id = request.data.get('user_id')
             object_id = request.data.get('object_id')
             user = CustomUser.objects.get(id=user_id)
             object = Object.objects.get(id=object_id)
-            request.data['user'] = request.data.pop('user_id')
-            serializer = UserObjectSearchExtendedSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(status=status.HTTP_200_OK)
+            try:
+                user_object_search = UserObjectSearch.objects.get(user=user_id, object_id=object_id)
+                redirect = True
+                return self.patch(request, redirect)
+            except UserObjectSearch.DoesNotExist:
+                timestamp = datetime.now().isoformat(timespec='seconds')
+                data = {
+                    'user': user_id,
+                    'object_id': object_id,
+                    'timestamp': timestamp,
+                    'route_created_count': 1
+                }
+                serializer = UserObjectSearchExtendedSerializer(data=data)
+                if serializer.is_valid():
+                    serializer.save()
+                    if not redirect:
+                        return Response({
+                            "code": 200,
+                            "message": "Record created"
+                            }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({
+                            "code": 200,
+                            "message": "Combination of user_id and object_id does not exist - record created"
+                                }, status=status.HTTP_200_OK)
         except Object.DoesNotExist:
                 return Response({
                 "code": 400,
@@ -226,18 +247,34 @@ class User_history(APIView):
                 "message": "Server error"
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    def put(self, request):
+    def patch(self, request, redirect=False):
         try:
             user_id = request.data.get('user_id')
             object_id = request.data.get('object_id')
             user = CustomUser.objects.get(id=user_id)
             object = Object.objects.get(id=object_id)
-            request.data['user'] = request.data.pop('user_id')
             user_object_search = UserObjectSearch.objects.get(user=user_id, object_id=object_id)
-            serializer = UserObjectSearchSerializer(user_object_search, data=request.data)
+            timestamp = datetime.now().isoformat(timespec='seconds')
+            new_route_created_count = user_object_search.route_created_count + 1
+            data = {
+                'user': user_id,
+                'object_id': object_id,
+                'timestamp': timestamp,
+                'route_created_count': new_route_created_count
+            }
+            serializer = UserObjectSearchExtendedSerializer(user_object_search, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response(status=status.HTTP_200_OK)
+                if not redirect:
+                    return Response({
+                        "code": 200,
+                        "message": "Data updated"
+                        }, status=status.HTTP_200_OK)
+                else:
+                    return Response({
+                        "code": 200,
+                        "message": "Combination of user_id and object_id already exists - data updated"
+                        }, status=status.HTTP_200_OK)
         except Object.DoesNotExist:
             return Response({
             "code": 400,
@@ -249,10 +286,8 @@ class User_history(APIView):
             "message": "Incorrect user_id"
             }, status=status.HTTP_400_BAD_REQUEST)
         except UserObjectSearch.DoesNotExist:
-            return Response({
-            "code": 400,
-            "message": "Combination of user_id and object_id does not exist"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            redirect = True
+            return self.post(request, redirect)
         except:
             return Response({
                 "code": 500,
