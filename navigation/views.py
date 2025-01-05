@@ -319,13 +319,13 @@ class User_statistics(APIView):
             distance_sum = user.distance_sum
             unique_places_visited_count = UserObjectSearch.objects.filter(user=user_id).count()
             top_five_visited_places = UserObjectSearch.objects.filter(user=user_id).order_by('-route_created_count')[:5]
-            serializer = UserObjectSearchSerializer(top_five_visited_places, many=True)
+            top_five_visited_places_serializer = UserObjectSearchSerializer(top_five_visited_places, many=True)
             return Response({
                     "code": 200,
                     "statistics":{
                         "distance_sum": distance_sum,
                         "unique_places_visited_count": unique_places_visited_count,
-                        "top_five_visited_places": serializer.data
+                        "top_five_visited_places": top_five_visited_places_serializer.data
                         }
                     }, status=status.HTTP_200_OK)
         except CustomUser.DoesNotExist:
@@ -371,13 +371,14 @@ class Users_rankings(generics.ListAPIView):
                 distance_sum = user.distance_sum
                 unique_places_visited_count = UserObjectSearch.objects.filter(user=user).count()
                 top_five_visited_places = UserObjectSearch.objects.filter(user=user).order_by('-route_created_count')[:5]
+                top_five_visited_places_serializer = UserObjectSearchSerializer(top_five_visited_places, many=True)
                 users_rankings.append({
                     "user_id": user.id,
                     "user_email": user.email,
                     "statistics": {
                         "distance_sum": distance_sum,
                         "unique_places_visited_count": unique_places_visited_count,
-                        "top_five_visited_places": top_five_visited_places
+                        "top_five_visited_places": top_five_visited_places_serializer.data
                     }
                 })
             return Response({
