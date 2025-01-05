@@ -298,8 +298,8 @@ class User_list(generics.ListAPIView):
 
     def get(self, request):
         try:
-            user = CustomUser.objects.all()
-            serializer = UserExtendedSerializer(user, many=True)
+            users = CustomUser.objects.all()
+            serializer = UserExtendedSerializer(users, many=True)
             return Response({
                 "code": 200,
                 "user": serializer.data,
@@ -355,6 +355,35 @@ class User_statistics(APIView):
                     "code": 400,
                     "message": "Incorrect user_id"
                     }, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({
+                "code": 500,
+                "message": "Server error"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class Users_rankings(generics.ListAPIView):
+    
+    def get(self, request):
+        try:
+            users = CustomUser.objects.all()
+            users_rankings = []
+            for user in users:
+                distance_sum = user.distance_sum
+                unique_places_visited_count = UserObjectSearch.objects.filter(user=user).count()
+                top_five_visited_places = UserObjectSearch.objects.filter(user=user).order_by('-route_created_count')[:5]
+                users_rankings.append({
+                    "user_id": user.id,
+                    "user_email": user.email,
+                    "statistics": {
+                        "distance_sum": distance_sum,
+                        "unique_places_visited_count": unique_places_visited_count,
+                        "top_five_visited_places": top_five_visited_places
+                    }
+                })
+            return Response({
+                    "code": 200,
+                    "users": users_rankings,
+                    }, status=status.HTTP_200_OK)
         except:
             return Response({
                 "code": 500,
